@@ -19,27 +19,25 @@ export const useThemeDispatch = () => {
 };
 
 const themeReducer = (state, { type, payload }) => {
-  const newState = { ...state };
-  console.log({ type: newState.palette.type });
   switch (type) {
     case actions.TOGGLE_THEME:
-      newState.palette.type =
-        newState.palette.type === "dark" ? "light" : "dark";
-      return createTheme(newState);
+      const toggledType = state.palette.type === "dark" ? "light" : "dark";
+      const newTheme = {
+        ...state,
+        palette: { ...state.palette, type: toggledType },
+      };
+      return newTheme;
     case actions.SET_THEME:
-      return payload;
+      return createTheme(() => payload);
     default:
       return state;
   }
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, dispatchTheme] = useReducer(
-    themeReducer,
-    createTheme(darkMode)
-  );
+  const [theme, dispatchTheme] = useReducer(themeReducer, darkMode);
   return (
-    <MuiThemeProvider theme={theme}>
+    <MuiThemeProvider theme={createTheme(theme)}>
       <ThemeUpdateContext.Provider value={dispatchTheme}>
         {children}
       </ThemeUpdateContext.Provider>
